@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from create_iot import create_iot
 from read_iot import read_iot
@@ -13,8 +13,15 @@ CORS(app)
 def index():
     return render_template('index.html')
 
+@app.route('/monitor')
+def monitor():
+    return render_template('monitor.html')
+
 @app.route('/iot', methods=['POST'])
 def create():
+    # Esta es la función para la creación de la acción en la base de datos
+    data = request.get_json()
+    print('Datos recibidos:', data)  # Verificar los datos recibidos en la consola del servidor
     return create_iot()
 
 @app.route('/iot', methods=['GET'])
