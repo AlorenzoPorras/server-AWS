@@ -4,48 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Movimientos IoT</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h2 class="text-center">Control de Movimientos IoT</h2>
-
-        <div class="text-center">
-            <!-- Botones para movimientos -->
-            <button class="btn btn-primary btn-move" id="up">Arriba</button>
-            <button class="btn btn-primary btn-move" id="down">Abajo</button>
-            <button class="btn btn-primary btn-move" id="left">Izquierda</button>
-            <button class="btn btn-primary btn-move" id="right">Derecha</button>
-            <button class="btn btn-warning btn-move" id="up-left">Girar 90° Izquierda</button>
-            <button class="btn btn-warning btn-move" id="up-right">Girar 90° Derecha</button>
-            <button class="btn btn-danger btn-move" id="stop">STOP</button>
+    <h1>Control de Movimientos IoT</h1>
+    
+    <div class="control-container">
+        <div class="movement-box">
+            <h3>Movimiento</h3>
+            <button class="btn-move" id="up">Arriba</button>
+            <button class="btn-move" id="left">Izquierda</button>
+            <button class="btn-move" id="stop">STOP</button>
+            <button class="btn-move" id="right">Derecha</button>
+            <button class="btn-move" id="down">Abajo</button>
         </div>
-
-        <div class="historial">
-            <h3 class="text-center">Historial de Acciones</h3>
-            <button class="btn btn-info" id="refresh">Actualizar Historial</button>
-            <table class="table table-bordered mt-3">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Acción</th>
-                        <th>Status</th>
-                        <th>IP Cliente</th>
-                        <th>Dispositivo</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-historial"></tbody>
-            </table>
+        
+        <div class="rotation-box">
+            <h3>Rotación</h3>
+            <button class="btn-move" id="rotate-90-left">Girar 90° Izquierda</button>
+            <button class="btn-move" id="rotate-90-right">Girar 90° Derecha</button>
+            <button class="btn-move" id="rotate-180">Girar 180°</button>
+            <button class="btn-move" id="rotate-360">Girar 360°</button>
         </div>
     </div>
+    
+    <div class="monitor-container">
+        <h3>Último Movimiento</h3>
+        <button id="refresh" class="btn-refresh">Actualizar Historial</button>
+        <a href="{{ url_for('monitor') }}"><button id="monitor" class="btn-monitor">Ir a Página de Monitoreo</button></a>
+        <table id="tabla-historial">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>IP</th>
+                    <th>Dispositivo</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Un único registro dinámico irá aquí -->
+            </tbody>
+        </table>
+    </div>
 
-    <!-- Scripts -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script type="module" src="{{ url_for('static', filename='js/ip_client.js') }}"></script> <!-- Script para obtener IP -->
-    <script type="module" src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script type="module" src="static/js/script.js"></script>
+    <script type="module" src="static/css/styles.css"></script>
 </body>
 </html>
