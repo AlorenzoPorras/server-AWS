@@ -1,12 +1,10 @@
+// ip_client.js
 export function getClientIP() {
     return fetch('https://api.ipify.org?format=json')
         .then(response => response.json())
-        .then(data => {
-            console.log('La dirección IP pública del usuario es:', data.ip);
-            return data.ip;
-        })
+        .then(data => data.ip)
         .catch(error => {
-            console.error('Error al obtener la dirección IP:', error);
+            console.error('Error obteniendo la IP:', error);
             return null;
         });
 }
