@@ -1,3 +1,6 @@
+// Diccionario para almacenar tokens asociados a cada IP
+const ipTokens = {};
+
 // Función para generar un token aleatorio
 function generateRandomToken() {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -11,7 +14,7 @@ function generateRandomToken() {
 // Función para obtener la IP del cliente o usar una predeterminada en caso de error
 function obtenerIPCliente() {
     return new Promise(function (resolve, reject) {
-        fetch('https://ipinfo.io/json?token=<YOUR_TOKEN>')  // Usamos IPinfo API
+        fetch('https://ipinfo.io/json?token=<YOUR_TOKEN>')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Error en la respuesta de IPinfo');
@@ -19,12 +22,11 @@ function obtenerIPCliente() {
                 return response.json();
             })
             .then(data => {
-                console.log('IP obtenida desde la API IPinfo:', data.ip);  // Verificamos que la IP se obtenga
-                resolve(data.ip);  // Resolución de la promesa con la IP obtenida
+                console.log('IP obtenida desde la API IPinfo:', data.ip);
+                resolve(data.ip);
             })
             .catch(error => {
                 console.error('Error obteniendo la IP (IPinfo):', error);
-                // Usar una segunda API en caso de fallo
                 fetch('https://api64.ipify.org?format=json')
                     .then(response => response.json())
                     .then(data => {
@@ -33,22 +35,30 @@ function obtenerIPCliente() {
                     })
                     .catch(error => {
                         console.error('Error obteniendo la IP (alternativa):', error);
-                        resolve('0.0.0.0');  // En caso de error, se asigna una IP predeterminada
+                        resolve('0.0.0.0');
                     });
             });
     });
 }
 
+// Función para obtener el token de un IP o crear uno nuevo si no existe
+function obtenerTokenPorIP(ip) {
+    if (!ipTokens[ip]) {
+        ipTokens[ip] = generateRandomToken(); // Asigna un nuevo token si no existe uno para esta IP
+    }
+    return ipTokens[ip];
+}
+
 // Función para enviar los datos a la API
 function sendData(status, actionName) {
     obtenerIPCliente().then(function (ip_client) {
-        const id_device = generateRandomToken();
+        const id_device = obtenerTokenPorIP(ip_client); // Obtener el token asociado a la IP
         const currentDate = new Date().toISOString();
 
         const data = {
             id: '',
             name: actionName,
-            ip_cliente: ip_client,  // Utiliza la IP obtenida
+            ip_cliente: ip_client,
             status: status,
             date: currentDate,
             id_device: id_device
@@ -57,13 +67,13 @@ function sendData(status, actionName) {
         console.log('Enviando datos:', JSON.stringify(data));
 
         const request = new XMLHttpRequest();
-        request.open('POST', 'http://52.90.144.151:5000/iot', true);
+        request.open('POST', 'http://54.210.130.245:5000/iot', true);
         request.setRequestHeader('Content-Type', 'application/json');
 
         request.onload = function () {
             if (this.status >= 200 && this.status < 400) {
                 console.log('Datos enviados exitosamente');
-                obtenerHistorial();  // Actualizar el historial después de enviar los datos
+                obtenerHistorial(true); // Refrescar el historial automáticamente al enviar datos
             } else {
                 console.error('Error en la respuesta del servidor');
             }
@@ -80,21 +90,21 @@ function sendData(status, actionName) {
 // Función para obtener el historial de acciones (para index.html y monitor.html)
 function obtenerHistorial(esMonitor) {
     const request = new XMLHttpRequest();
-    request.open('GET', 'http://52.90.144.151:5000/iot', true);
+    request.open('GET', 'http://54.210.130.245:5000/iot', true);
 
     request.onload = function () {
         if (this.status >= 200 && this.status < 400) {
             const data = JSON.parse(this.responseText);
-            
+
             if (esMonitor) {
                 const tablaMonitor = document.getElementById('tabla-monitor');
                 tablaMonitor.innerHTML = ''; // Limpiar tabla
 
-                const ultimosDiez = data.slice(-10);  // Los últimos 10 registros
+                const ultimosDiez = data.slice(-10).reverse();  // Los últimos 10 registros, invertidos
 
                 ultimosDiez.forEach((registro, index) => {
                     const fila = `
-                        <tr ${index === ultimosDiez.length - 1 ? 'style="background-color: yellow;"' : ''}>
+                        <tr ${index === 0 ? 'style="background-color: lightgreen;"' : ''}>
                             <td>${registro.id}</td>
                             <td>${registro.name}</td>
                             <td>${registro.status}</td>
@@ -108,7 +118,19 @@ function obtenerHistorial(esMonitor) {
 
             } else {
                 const tablaHistorial = document.getElementById('tabla-historial');
-                tablaHistorial.innerHTML = ''; // Limpiar tabla
+                tablaHistorial.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Acción</th>
+                            <th>Status</th>
+                            <th>IP Cliente</th>
+                            <th>Dispositivo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `; // Definir encabezados
 
                 const ultimoRegistro = data[data.length - 1];  // Solo el último registro
 
@@ -123,7 +145,7 @@ function obtenerHistorial(esMonitor) {
                             <td>${new Date(ultimoRegistro.create_time).toUTCString() || 'N/A'}</td>
                         </tr>
                     `;
-                    tablaHistorial.insertAdjacentHTML('beforeend', fila);
+                    tablaHistorial.querySelector('tbody').insertAdjacentHTML('beforeend', fila);
                 }
             }
         } else {
@@ -136,6 +158,13 @@ function obtenerHistorial(esMonitor) {
     };
 
     request.send();
+}
+
+// Función para refrescar automáticamente la tabla de monitoreo cada segundo
+function iniciarMonitoreoAutomatico() {
+    setInterval(() => {
+        obtenerHistorial(true); // Actualizar el historial en la sección de monitoreo
+    }, 1000); // Intervalo de 1 segundo
 }
 
 // Manejadores de eventos para los botones de control
@@ -160,10 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Detecta si estamos en index.html o monitor.html y carga la función correspondiente
     if (document.getElementById('tabla-historial')) {
-        obtenerHistorial(false);  // Cargar historial en index.html
+        obtenerHistorial(false);
     } else if (document.getElementById('tabla-monitor')) {
-        obtenerHistorial(true);  // Cargar los últimos 10 en monitor.html
+        iniciarMonitoreoAutomatico(); // Iniciar monitoreo automático si es la tabla de monitoreo
     }
 });

@@ -133,3 +133,62 @@ h1 {
 #tabla-historial tbody tr:last-child {
     background-color: #ffff99;
 }
+
+/* Estilos responsivos para dispositivos móviles */
+@media (max-width: 768px) {
+    /* Ajustes de contenedores */
+    .control-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .movement-box, .rotation-box {
+        width: 90%;
+        margin-bottom: 20px;
+    }
+
+    /* Ajuste de botones */
+    .btn-move {
+        width: 100%;
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    /* Ajustes de tabla */
+    #tabla-historial th, #tabla-historial td {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    /* Botón de actualización y monitoreo */
+    .btn-refresh, .btn-monitor {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Encabezado y margenes */
+    body {
+        margin: 10px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    /* Botones de movimiento */
+    .btn-move {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    /* Ajustes de tabla para pantallas pequeñas */
+    #tabla-historial {
+        font-size: 12px;
+    }
+
+    #tabla-historial th, #tabla-historial td {
+        padding: 6px;
+    }
+}

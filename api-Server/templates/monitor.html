@@ -22,6 +22,7 @@
         table {
             margin-top: 20px;
             border: 1px solid #dee2e6;
+            width: 100%;
         }
         th {
             background-color: #343a40;
@@ -33,6 +34,32 @@
         }
         .table-bordered td, .table-bordered th {
             border-color: #dee2e6;
+        }
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .container {
+                margin-top: 20px;
+                max-width: 100%;
+                padding: 0 10px;
+            }
+            table, th, td {
+                font-size: 14px;
+            }
+            h2, h3 {
+                font-size: 1.5em;
+            }
+        }
+        @media (max-width: 480px) {
+            h2, h3 {
+                font-size: 1.2em;
+            }
+            table, th, td {
+                font-size: 12px;
+            }
+            .btn {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
